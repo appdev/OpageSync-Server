@@ -1,5 +1,6 @@
 package ci.run.api.plugins
 
+import ci.run.api.db.DBUtils
 import io.ktor.routing.*
 import io.ktor.http.*
 import io.ktor.application.*
@@ -14,7 +15,9 @@ fun Application.configureRouting() {
 
     routing {
         get("/") {
-            call.respondText("Hello World!")
+
+            call.respondText("${DBUtils.database.version}")
+
         }
         authenticate("auth-jwt") {
             get("/hello") {
