@@ -1,45 +1,34 @@
 package ci.run.api.model
 
-import com.auth0.jwt.JWT
-import com.auth0.jwt.algorithms.Algorithm
-import org.jetbrains.exposed.dao.id.UUIDTable
-import java.util.*
+import kotlinx.serialization.Serializable
+import org.jetbrains.exposed.dao.LongEntity
+import org.jetbrains.exposed.dao.LongEntityClass
+import org.jetbrains.exposed.dao.id.EntityID
+import org.jetbrains.exposed.dao.id.LongIdTable
 
-object User : UUIDTable() {
-    val name = varchar("name", 50)
-    val password = varchar("password", 250)
-    val sequelId = integer("sequel_id")
-        .uniqueIndex()
-        .references(UserSetting.sequelId)
+object Users : LongIdTable(columnName = "user_id") {
+    val username = varchar("username", 255).uniqueIndex()
+    val password = varchar("password", 255)
+    val userSetting = reference("Settings", UserSettings)
 }
 
-data class PostSnippet(val snippet: PostSnippet.Text) {
-    data class Text(val text: String)
+class User(id: EntityID<Long>) : LongEntity(id) {
+    companion object : LongEntityClass<User>(Users)
+
+    var username by Users.username
+    var password by Users.password
+    var userSetting by UserSetting referencedOn Users.userSetting
+
+    fun toResult(): UserResult {
+        return UserResult(username, id.value, "", userSetting.toResult())
+    }
 }
 
-data class Snippet(val user: String, val text: String)
-
-val snippets = Collections.synchronizedList(
-    mutableListOf(
-        Snippet(user = "test", text = "hello"),
-        Snippet(user = "test", text = "world")
-    )
+@Serializable
+data class UserResult(
+    val username: String, val userId: Long, val token: String?,
+    val userSetting: UserSettingResult
 )
 
-open class SimpleJWT(val secret: String) {
-    private val algorithm = Algorithm.HMAC256(secret)
-    val verifier = JWT.require(algorithm).build()
-    fun sign(name: String): String = JWT.create().withClaim("name", name).sign(algorithm)
-}
-
-class UserData(val name: String, val password: String)
-
-val users = Collections.synchronizedMap(
-    listOf(UserData("test", "test"))
-        .associateBy { it.name }
-        .toMutableMap()
-)
-
-class InvalidCredentialsException(message: String) : RuntimeException(message)
-
-class LoginRegister(val user: String, val password: String)
+@Serializable
+data class UserData(val username: String, val password: String)

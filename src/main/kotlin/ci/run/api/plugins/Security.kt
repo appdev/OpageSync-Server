@@ -6,6 +6,10 @@ import io.ktor.application.*
 import io.ktor.auth.*
 import io.ktor.auth.jwt.*
 
+fun getToken(name: String, id: Long, secret: String): String? {
+    return JWT.create().withClaim("name", name).withClaim("id", id).sign(Algorithm.HMAC256(secret))
+}
+
 
 fun Application.configureSecurity() {
     val secret = environment.config.property("jwt.secret").getString()
@@ -23,7 +27,9 @@ fun Application.configureSecurity() {
                     .build()
             )
             validate { credential ->
-                if (credential.payload.getClaim("username").asString() != "") {
+                if (credential.payload.getClaim("username").asString() != "" && credential.payload.getClaim("id")
+                        .asLong() != 0L
+                ) {
                     JWTPrincipal(credential.payload)
                 } else {
                     null
