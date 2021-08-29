@@ -1,24 +1,27 @@
 package ci.run.api.model
 
 import kotlinx.serialization.Serializable
-import kotlinx.serialization.json.Json
-import kotlinx.serialization.encodeToString
 
 @Serializable
-data class Respon(var code: Int, var mes: String?, var data: String?)
+data class Respon<T>(var code: Int, var msg: String?, var data: T?)
 
-inline fun <reified T> success(data: T): Respon {
-    return Respon(200, "", Json.encodeToString(data))
+
+fun <T> success(data: T): Respon<T> {
+    return Respon(200, "", data)
 }
 
-fun errorWithCode(code: Int): Respon {
+fun success(): Respon<String> {
+    return Respon(200, "", null)
+}
+
+fun errorWithCode(code: Int): Respon<String> {
     return Respon(code, "", null)
 }
 
-fun errorWithMsg(msg: String?): Respon {
+fun errorWithMsg(msg: String?): Respon<String> {
     return Respon(0, msg, null)
 }
 
-fun error(code: Int, msg: String?): Respon {
+fun error(code: Int, msg: String?): Respon<String> {
     return Respon(code, msg, null)
 }

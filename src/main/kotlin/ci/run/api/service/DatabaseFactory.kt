@@ -1,5 +1,7 @@
 package ci.run.api.service
 
+import ci.run.api.model.ToDos
+import ci.run.api.model.UserResult
 import ci.run.api.model.UserSettings
 import ci.run.api.model.Users
 import kotlinx.coroutines.Dispatchers
@@ -22,7 +24,7 @@ object DatabaseFactory {
         //初始化数据库表
         transaction(database) {
             addLogger(KotlinLoggingSqlLogger)
-            create(Users, UserSettings)
+            create(Users, UserSettings,ToDos)
             //NOTE: Insert initial rows if any here
         }
     }
@@ -33,7 +35,7 @@ object DatabaseFactory {
     }
 
     suspend fun drop() {
-        dbOperate { drop(Users, UserSettings) }
+        dbOperate { drop(Users, UserSettings,ToDos) }
     }
 }
 
