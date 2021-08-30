@@ -14,6 +14,8 @@ object UserSettings : LongIdTable(columnName = "setting_id") {
     val useBg = bool("use_bg")
     val useToDo = bool("use_todo")
     val useHitokoto = bool("use_hitokoto")
+    val deleteExpired = bool("delete_expired") // 删除过期 todolist
+    val expired = integer("expired") // 过期时间 todolist
     val createTime = datetime("setting_create_time").defaultExpression(CurrentDateTime())
 }
 
@@ -27,16 +29,19 @@ class UserSetting(id: EntityID<Long>) : LongEntity(id) {
     var useToDo by UserSettings.useToDo
     var useHitokoto by UserSettings.useHitokoto
     var createTime by UserSettings.createTime
+    var deleteExpired by UserSettings.deleteExpired
+    var expired by UserSettings.expired
 
     fun toResult(): UserSettingResult {
-        return UserSettingResult(this.useBg, this.useToDo, this.useHitokoto)
+        return UserSettingResult(this.useBg, this.useToDo, this.useHitokoto, deleteExpired, expired)
     }
 }
 
 
 @Serializable
 data class UserSettingResult(
-    var useBg: Boolean, var useToDo: Boolean, var useHitokoto: Boolean
+    var useBg: Boolean, var useToDo: Boolean, var useHitokoto: Boolean,
+    var deleteExpired: Boolean, var expired: Int
 )
 
 suspend fun createDefaultSetting(): UserSetting {
@@ -45,6 +50,8 @@ suspend fun createDefaultSetting(): UserSetting {
             useBg = true
             useToDo = true
             useHitokoto = true
+            deleteExpired = true
+            expired = 30 // 默认 30 天
         }
     }
 }

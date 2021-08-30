@@ -53,7 +53,7 @@ suspend fun toDoRemove(todoId: Long) {
 }
 
 // 查找 todolist
-suspend fun findByUserId(userId: Long, deleteExpired: Boolean, expired: Int): MutableList<ToDoListData> {
+suspend fun findToDoByUserId(userId: Long, deleteExpired: Boolean, expired: Int): MutableList<ToDoListData> {
     return DatabaseFactory.dbOperate {
         val userToDo = ToDo.find { ToDos.userId eq userId }
         val todo = if (deleteExpired) {

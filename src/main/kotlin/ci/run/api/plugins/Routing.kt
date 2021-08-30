@@ -1,5 +1,6 @@
 package ci.run.api.plugins
 
+import ci.run.api.service.settingService
 import ci.run.api.service.toDoService
 import ci.run.api.service.userService
 import io.ktor.application.*
@@ -11,6 +12,7 @@ fun Application.configureRouting() {
 
     userService()
     toDoService()
+    settingService()
 
     routing {
 

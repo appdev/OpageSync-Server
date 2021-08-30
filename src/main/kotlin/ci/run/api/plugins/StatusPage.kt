@@ -9,14 +9,17 @@ import io.ktor.response.*
 
 fun Application.configureStatusPage() {
     install(StatusPages) {
-        exception<AuthenticationException> { cause ->
+        exception<AuthenticationException> {
             call.respond(error(403, "Unauthorized"))
         }
-        exception<AuthorizationException> { cause ->
+        exception<AuthorizationException> {
             call.respond(error(HttpStatusCode.Forbidden.value, HttpStatusCode.Forbidden.description))
         }
-        exception<UserNotFoundException> { cause ->
+        exception<UserNotFoundException> {
             call.respond(error(HttpStatusCode.Unauthorized.value, "用户认证失败，请重新登录"))
+        }
+        exception<RequestParametersException> {
+            call.respond(error(HttpStatusCode.Unauthorized.value, "请求参数异常，请重试"))
         }
         val dev = environment.config.property("ktor.development").getString().toBoolean()
         if (!dev) {
@@ -36,6 +39,7 @@ fun Application.configureStatusPage() {
 
 class AuthenticationException : RuntimeException()
 class AuthorizationException : RuntimeException()
-class UserExists : RuntimeException()
-class UserDoesNotExists : RuntimeException()
+class UserExistsException : RuntimeException()
+class UserDoesNotExistsException : RuntimeException()
 class UserNotFoundException : RuntimeException()
+class RequestParametersException : RuntimeException()
